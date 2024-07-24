@@ -18,9 +18,14 @@ export const env = createEnv({
       .default("4000")
       .transform((x) => Number.parseInt(x, 10)),
 
-    API_DOMAIN: z.enum(["localhost"]).default("localhost"),
+    API_URL: z
+      .enum(["http://localhost:4000"])
+      .default("http://localhost:4000")
+      .transform((x) => new URL(x)),
 
     FRONTEND_DOMAIN: z.enum(["localhost:3000"]).default("localhost:3000"),
+    SENDGRID_API_KEY: z.string().startsWith("SG."),
+    FLY_REGION: z.string().optional(),
   },
 
   // do not change pls
