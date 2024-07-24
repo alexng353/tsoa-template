@@ -76,6 +76,25 @@
 		"contact": {}
 	},
 	"paths": {
+		"/hello": {
+			"get": {
+				"operationId": "GetRoot",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "string"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": []
+			}
+		},
 		"/users/{userId}": {
 			"get": {
 				"operationId": "GetUser",

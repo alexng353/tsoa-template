@@ -13,9 +13,14 @@ import type { User } from "./example";
 import { UsersService } from "./example.service";
 import type { UserCreationParams } from "./example.service";
 
-@Route("users")
-export class UsersController extends Controller {
-  @Get("{userId}")
+@Route("/")
+export class ExampleController extends Controller {
+  @Get("/hello")
+  public async getRoot(): Promise<string> {
+    return "Hello World";
+  }
+
+  @Get("/users/{userId}")
   public async getUser(
     @Path() userId: number,
     @Query() name?: string,
@@ -24,7 +29,7 @@ export class UsersController extends Controller {
   }
 
   @SuccessResponse("201", "Created") // Custom success response
-  @Post()
+  @Post("/users")
   public async createUser(
     @Body() requestBody: UserCreationParams,
   ): Promise<void> {

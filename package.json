@@ -7,8 +7,7 @@
     "lint": "eslint ./src",
     "_dev": "bun run ./src/server.ts",
     "build": "tsoa spec-and-routes",
-
-    "dev": "concurrently \"nodemon --watch src -x bun run ./src/server.ts\" \"nodemon --watch src -x tsoa spec-and-routes\""
+    "dev": "bun run ./watcher.ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.7.0",
@@ -29,9 +28,11 @@
     "typescript": "^5.5.4"
   },
   "dependencies": {
+    "@t3-oss/env-core": "^0.11.0",
     "drizzle-orm": "^0.32.1",
     "express": "^4.19.2",
     "pg": "^8.12.0",
-    "tsoa": "^6.4.0"
+    "tsoa": "^6.4.0",
+    "zod": "^3.23.8"
   }
 }

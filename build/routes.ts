@@ -3,7 +3,7 @@
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { TsoaRoute, fetchMiddlewares, ExpressTemplateService } from '@tsoa/runtime';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { UsersController } from './../src/example/example.controller';
+import { ExampleController } from './../src/example/example.controller';
 import type { Request as ExRequest, Response as ExResponse, RequestHandler, Router } from 'express';
 
 
@@ -50,11 +50,40 @@ export function RegisterRoutes(app: Router) {
 
 
     
-        app.get('/users/:userId',
-            ...(fetchMiddlewares<RequestHandler>(UsersController)),
-            ...(fetchMiddlewares<RequestHandler>(UsersController.prototype.getUser)),
+        app.get('/hello',
+            ...(fetchMiddlewares<RequestHandler>(ExampleController)),
+            ...(fetchMiddlewares<RequestHandler>(ExampleController.prototype.getRoot)),
 
-            async function UsersController_getUser(request: ExRequest, response: ExResponse, next: any) {
+            async function ExampleController_getRoot(request: ExRequest, response: ExResponse, next: any) {
+            const args: Record<string, TsoaRoute.ParameterSchema> = {
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args, request, response });
+
+                const controller = new ExampleController();
+
+              await templateService.apiHandler({
+                methodName: 'getRoot',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.get('/users/:userId',
+            ...(fetchMiddlewares<RequestHandler>(ExampleController)),
+            ...(fetchMiddlewares<RequestHandler>(ExampleController.prototype.getUser)),
+
+            async function ExampleController_getUser(request: ExRequest, response: ExResponse, next: any) {
             const args: Record<string, TsoaRoute.ParameterSchema> = {
                     userId: {"in":"path","name":"userId","required":true,"dataType":"double"},
                     name: {"in":"query","name":"name","dataType":"string"},
@@ -66,7 +95,7 @@ export function RegisterRoutes(app: Router) {
             try {
                 validatedArgs = templateService.getValidatedArgs({ args, request, response });
 
-                const controller = new UsersController();
+                const controller = new ExampleController();
 
               await templateService.apiHandler({
                 methodName: 'getUser',
@@ -82,10 +111,10 @@ export function RegisterRoutes(app: Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/users',
-            ...(fetchMiddlewares<RequestHandler>(UsersController)),
-            ...(fetchMiddlewares<RequestHandler>(UsersController.prototype.createUser)),
+            ...(fetchMiddlewares<RequestHandler>(ExampleController)),
+            ...(fetchMiddlewares<RequestHandler>(ExampleController.prototype.createUser)),
 
-            async function UsersController_createUser(request: ExRequest, response: ExResponse, next: any) {
+            async function ExampleController_createUser(request: ExRequest, response: ExResponse, next: any) {
             const args: Record<string, TsoaRoute.ParameterSchema> = {
                     requestBody: {"in":"body","name":"requestBody","required":true,"ref":"UserCreationParams"},
             };
@@ -96,7 +125,7 @@ export function RegisterRoutes(app: Router) {
             try {
                 validatedArgs = templateService.getValidatedArgs({ args, request, response });
 
-                const controller = new UsersController();
+                const controller = new ExampleController();
 
               await templateService.apiHandler({
                 methodName: 'createUser',
