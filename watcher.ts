@@ -42,7 +42,8 @@ if (isHelp) {
   process.exit(0);
 }
 
-const isVerbose = process.argv.includes("--verbose") || process.argv.includes("-v");
+const isVerbose =
+  process.argv.includes("--verbose") || process.argv.includes("-v");
 
 await reloadTsoa();
 
@@ -52,13 +53,13 @@ let currentProcess = spawn("bun", ["run", "./src/server.ts"], {
 
 currentProcess.stdout?.on("data", (data) => {
   console.log(data.toString());
-})
+});
 currentProcess.stderr?.on("data", (data) => {
   console.error(data.toString());
-})
+});
 currentProcess.on("close", (code) => {
   console.log(`Process ${currentProcess.pid} exited with code ${code}`);
-})
+});
 
 const watcher = watch(import.meta.dir, {
   recursive: true,
@@ -67,7 +68,7 @@ for await (const event of watcher) {
   if (generateCondition(event)) {
     console.log("\nkilling previous process");
     if (currentProcess) {
-      const success = currentProcess.kill('SIGTERM');
+      const success = currentProcess.kill("SIGTERM");
       if (!success) {
         console.error("Failed to kill previous process");
         throw new Error("Failed to kill previous process");
@@ -100,7 +101,14 @@ function generateCondition(event: FileChangeInfo<string>) {
   const uniqueKey = `${userName}@${hostName}`;
 
   if (isVerbose) {
-    console.log("event:", event.eventType, "file:", event.filename, "uniqueKey:", uniqueKey);
+    console.log(
+      "event:",
+      event.eventType,
+      "file:",
+      event.filename,
+      "uniqueKey:",
+      uniqueKey,
+    );
   }
 
   const condition = conditions[uniqueKey] || defaultCondition;
@@ -117,7 +125,7 @@ async function asyncSpawn(command: string[]) {
         } else {
           reject();
         }
-      }
+      },
     });
   });
 }
@@ -127,4 +135,3 @@ async function reloadTsoa() {
   await asyncSpawn(["bun", "run", "tsoa", "spec-and-routes"]);
   console.timeEnd("reloaded tsoa");
 }
-
