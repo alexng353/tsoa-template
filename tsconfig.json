@@ -31,5 +31,7 @@
 
     // misc
     "esModuleInterop": true
-  }
+  },
+  "include": ["src/**/*", "build/routes.ts"],
+  "files": ["src/lib/global/express/index.d.ts", "src/server.ts"]
 }
