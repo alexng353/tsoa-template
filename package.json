@@ -1,0 +1,37 @@
+{
+  "name": "tsoa-template",
+  "module": "src/app.ts",
+  "type": "module",
+  "scripts": {
+    "fmt": "prettier --write .",
+    "lint": "eslint ./src",
+    "_dev": "bun run ./src/server.ts",
+    "build": "tsoa spec-and-routes",
+
+    "dev": "concurrently \"nodemon --watch src -x bun run ./src/server.ts\" \"nodemon --watch src -x tsoa spec-and-routes\""
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.7.0",
+    "@types/bun": "latest",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.14.12",
+    "@types/pg": "^8.11.6",
+    "concurrently": "^8.2.2",
+    "drizzle-kit": "^0.23.0",
+    "globals": "^15.8.0",
+    "nodemon": "^3.1.4",
+    "prettier": "^3.3.3",
+    "typescript-eslint": "^7.17.0",
+    "eslint": "^9.7.0",
+    "eslint-config-prettier": "^9.1.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.32.1",
+    "express": "^4.19.2",
+    "pg": "^8.12.0",
+    "tsoa": "^6.4.0"
+  }
+}
