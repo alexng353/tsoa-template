@@ -9,4 +9,14 @@ export default [
   pluginJs.configs.recommended,
   eslintConfigPrettier,
   ...tseslint.configs.recommended,
+  {
+    rules: {
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          argsIgnorePattern: "^_",
+        },
+      ],
+    },
+  },
 ];
