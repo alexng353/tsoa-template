@@ -16,9 +16,11 @@ async function protectRouteMiddleware(
     if (env.NODE_ENV !== "production") {
       logger.warn(`No user found (rp) ${request.url}\n\t`, error);
     }
-    next(new Error("Unauthorized", {
-      cause: error,
-    }));
+    next(
+      new Error("Unauthorized", {
+        cause: error,
+      }),
+    );
     // throw new ErrorUnauthorized("Unauthorized", {
     //   cause: error,
     // });
