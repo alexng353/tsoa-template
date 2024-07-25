@@ -76,6 +76,31 @@
 		"contact": {}
 	},
 	"paths": {
+		"/example/auth-test": {
+			"get": {
+				"operationId": "UserInfo",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "string"
+								}
+							}
+						}
+					}
+				},
+				"security": [
+					{
+						"jwt": [
+							"admin"
+						]
+					}
+				],
+				"parameters": []
+			}
+		},
 		"/hello": {
 			"get": {
 				"operationId": "GetRoot",
@@ -149,6 +174,26 @@
 							"schema": {
 								"$ref": "#/components/schemas/UserCreationParams"
 							}
+						}
+					}
+				}
+			}
+		},
+		"/auth/signup": {
+			"post": {
+				"operationId": "Signup",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {}
 						}
 					}
 				}
