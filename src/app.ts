@@ -5,6 +5,9 @@ import express, {
 } from "express";
 import { RegisterRoutes } from "../build/routes";
 import { ValidateError } from "tsoa";
+import swaggerUi from "swagger-ui-express";
+
+import { IS_PRODUCTION } from "@lib/constants";
 
 export const app = express();
 
@@ -14,6 +17,18 @@ app.use(
   }),
 );
 app.use(express.json());
+
+if (!IS_PRODUCTION) {
+  app.use(
+    "/swagger",
+    swaggerUi.serve,
+    async (_req: ExpressRequest, res: ExpressResponse) => {
+      return res.send(
+        swaggerUi.generateHTML(await import("../build/swagger.json")),
+      );
+    },
+  );
+}
 
 RegisterRoutes(app);
 
