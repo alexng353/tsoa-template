@@ -68,10 +68,15 @@ for await (const event of watcher) {
   if (generateCondition(event)) {
     console.log("\nkilling previous process");
     if (currentProcess) {
+      const isDead = currentProcess.killed;
       const success = currentProcess.kill("SIGTERM");
       if (!success) {
-        console.error("Failed to kill previous process");
-        throw new Error("Failed to kill previous process");
+        if (isDead) {
+          console.error("Previous process was already dead.");
+        } else {
+          console.error("Failed to kill previous process.");
+          console.error("Consider killing it manually.");
+        }
       }
     }
 
@@ -81,17 +86,6 @@ for await (const event of watcher) {
       stdio: "inherit",
     });
     currentProcess = proc;
-
-    proc.stdout?.on("data", (data) => {
-      console.log(data.toString());
-    });
-    proc.stderr?.on("data", (data) => {
-      console.error(data.toString());
-    });
-
-    proc.on("close", (code) => {
-      console.log(`Process ${proc.pid} exited with code ${code}`);
-    });
   }
 }
 
