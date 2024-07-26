@@ -4,6 +4,7 @@ import type { Request, Response, NextFunction } from "express";
 import { env } from "@lib/env";
 import { MulterError } from "multer";
 import { ErrorUnauthorized } from "@lib/status/error";
+import { ValidateError } from "tsoa";
 
 type ErrorWithCause = {
   name?: string;
@@ -70,6 +71,14 @@ export function errorMiddleware(
       request_id: request_id,
       request_timestamp: request.tracing.timestamp,
       error_code: error.error_code,
+    });
+  }
+
+  if (error instanceof ValidateError) {
+    console.warn(`Caught Validation Error for ${request.path}:`, error.fields);
+    return response.status(422).json({
+      message: "Validation Failed",
+      details: error?.fields,
     });
   }
 

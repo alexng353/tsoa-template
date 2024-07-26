@@ -1,4 +1,3 @@
 export * from "./common";
-export * from "./organizations";
-export * from "./sessions";
-export * from "./users";
+export * from "./session.schema";
+export * from "./user.schema";

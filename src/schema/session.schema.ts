@@ -8,7 +8,7 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 import { now } from "./common";
-import { Users } from "./users";
+import { Users } from "./user.schema";
 
 export const Sessions = pgTable("sessions", {
   id: uuid("id")

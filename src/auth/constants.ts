@@ -36,7 +36,7 @@ export const FRONTEND_COOKIE_OPTIONS = IS_PRODUCTION
       httpOnly: false,
       secure: true,
       sameSite: "strict",
-      domain: `.${env.FRONTEND_DOMAIN.host.split(".").slice(-2).join(".")}`,
+      domain: `.${env.FRONTEND_URL.host.split(".").slice(-2).join(".")}`,
       expires: thirtyDaysFromNow(),
       path: "/",
     } as const)

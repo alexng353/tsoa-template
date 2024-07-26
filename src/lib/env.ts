@@ -23,9 +23,14 @@ export const env = createEnv({
       .default("http://localhost:4000")
       .transform((x) => new URL(x)),
 
-    FRONTEND_DOMAIN: z.enum(["localhost:3000"]).default("localhost:3000"),
+    FRONTEND_URL: z
+      .enum(["http://localhost:3000"])
+      .default("http://localhost:3000")
+      .transform((x) => new URL(x)),
+
     SENDGRID_API_KEY: z.string().startsWith("SG."),
     FLY_REGION: z.string().optional(),
+    JWS_SECRET: z.string().default("secret"),
   },
 
   // do not change pls

@@ -67,6 +67,29 @@
 			},
 			"UserCreationParams": {
 				"$ref": "#/components/schemas/Pick_User.email-or-name-or-phoneNumbers_"
+			},
+			"SignupBody": {
+				"properties": {
+					"code": {
+						"type": "string"
+					},
+					"email": {
+						"type": "string"
+					},
+					"password": {
+						"type": "string"
+					},
+					"username": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"code",
+					"email",
+					"password",
+					"username"
+				],
+				"type": "object"
 			}
 		},
 		"securitySchemes": {}
@@ -179,7 +202,7 @@
 				}
 			}
 		},
-		"/auth/signup": {
+		"/auth/v1/signup/password": {
 			"post": {
 				"operationId": "Signup",
 				"responses": {
@@ -193,7 +216,9 @@
 					"required": true,
 					"content": {
 						"application/json": {
-							"schema": {}
+							"schema": {
+								"$ref": "#/components/schemas/SignupBody"
+							}
 						}
 					}
 				}
