@@ -126,6 +126,11 @@ async function asyncSpawn(command: string[]) {
 
 async function reloadTsoa() {
   console.time("reloaded tsoa");
-  await asyncSpawn(["bun", "run", "tsoa", "spec-and-routes"]);
+  try {
+    await asyncSpawn(["bun", "run", "tsoa", "spec-and-routes"]);
+  } catch (e) {
+    console.error("Failed to reload tsoa");
+    console.error(e);
+  }
   console.timeEnd("reloaded tsoa");
 }

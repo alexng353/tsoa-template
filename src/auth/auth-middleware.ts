@@ -6,8 +6,8 @@ import * as jose from "jose";
 import { JWS_SECRET } from "./jwt-helpers";
 import { LogOut } from "./logout";
 import {
+  EXPRESS_FRONTEND_COOKIE_OPTIONS,
   FRONTEND_COOKIE_NAME,
-  FRONTEND_COOKIE_OPTIONS,
   SESSION_COOKIE_NAME,
 } from "./constants";
 import { db, getFirst } from "@lib/db";
@@ -98,6 +98,8 @@ export function auth() {
 
     async function refresh_frontend_token() {
       const user_id = session?.user?.id;
+      if (!user_id) throw new Error("User ID is missing");
+
       logger.info({
         event: "auth:middleware:refresh_frontend_token",
         user_id,
@@ -106,7 +108,7 @@ export function auth() {
       });
       const new_fe_cookie = await new jose.SignJWT()
         .setProtectedHeader({ alg: "HS256" })
-        .setSubject(user.id)
+        .setSubject(user_id)
 
         .setIssuedAt()
         .setExpirationTime("30d")
@@ -118,7 +120,7 @@ export function auth() {
       response.cookie(
         FRONTEND_COOKIE_NAME,
         new_fe_cookie,
-        FRONTEND_COOKIE_OPTIONS,
+        EXPRESS_FRONTEND_COOKIE_OPTIONS,
       );
     }
 

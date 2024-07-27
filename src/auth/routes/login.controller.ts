@@ -1,6 +1,5 @@
-import { z } from "zod";
 import argon2 from "@node-rs/argon2";
-import { Body, Header, Post, Query, Res, Route } from "tsoa";
+import { Body, Header, Post, Queries, Query, Res, Route } from "tsoa";
 import { eq, or } from "drizzle-orm";
 import * as jose from "jose";
 
@@ -17,10 +16,10 @@ import {
   SESSION_COOKIE_OPTIONS,
 } from "../constants";
 
-import type { IncomingHttpHeaders } from "http";
-import type { Response } from "express";
-import { get_real_ip } from "../get-real-ip";
-import { RedirectQuery, Z_RedirectQuery } from "../types";
+import { Z_RedirectQuery } from "../types";
+import { env } from "@lib/env";
+import { JWS_SECRET } from "../jwt-helpers";
+import { NController } from "@lib/ncontroller";
 
 type LoginBody = {
   username: string;
@@ -28,22 +27,22 @@ type LoginBody = {
 };
 
 @Route("/auth/v1/login")
-export class LoginPasswordController {
+export class LoginPasswordController extends NController {
   @Post("/password")
   async login_password(
     @Body() body: LoginBody,
-    @Res() response: Response,
-    @Header() headers: IncomingHttpHeaders,
-    @Query() _query: RedirectQuery,
+    @Queries()
+    _query: {
+      success_url: string;
+      error_url: string;
+    },
   ) {
     const { success_url, error_url } = Z_RedirectQuery.parse(_query);
 
-    const ip_address = get_real_ip(headers);
+    const ip_address = this.getRealIp();
     try {
-      // TODO: Research: Should we clear the cookie here?
-      await LogOut(response, null, {
-        reason: "User logging into another account",
-      });
+      this.clearCookie(SESSION_COOKIE_NAME);
+      this.clearCookie(FRONTEND_COOKIE_NAME);
 
       // TODO: EDU-2241: Check IP Address on login
 
@@ -56,14 +55,14 @@ export class LoginPasswordController {
         .then(getFirst);
 
       if (!user) {
-        response.redirect(error_url + "?error=user_not_found");
+        // response.redirect(error_url + "?error=user_not_found");
         return;
       }
 
       const is_valid = await argon2.verify(user.password_hash, body.password);
 
       if (!is_valid) {
-        response.redirect(error_url + "?error=invalid_password");
+        // response.redirect(error_url + "?error=invalid_password");
         return;
       }
 
@@ -83,18 +82,20 @@ export class LoginPasswordController {
       if (!session) {
         throw new ErrorBadRequest("Failed to create session");
       }
+      const fe_jwt = await new jose.SignJWT()
+        .setProtectedHeader({ alg: "HS256" })
+        .setSubject(user.id)
 
-      response.cookie(SESSION_COOKIE_NAME, session.id, SESSION_COOKIE_OPTIONS);
-      response.cookie(
-        FRONTEND_COOKIE_NAME,
-        await makeJWT({
-          user_id: user.id,
-          session_iat: iat.getTime() / 1000,
-          session_exp: exp.getTime() / 1000,
-          is_temporary_password: !!user.is_temporary_password,
-        }),
-        FRONTEND_COOKIE_OPTIONS,
-      );
+        .setIssuedAt(iat)
+        .setExpirationTime(exp)
+
+        .setIssuer(env.API_URL.toString())
+        .setAudience(env.FRONTEND_URL.toString())
+        .setJti(crypto.randomUUID())
+        .sign(JWS_SECRET);
+
+      this.setCookie(SESSION_COOKIE_NAME, session.id, SESSION_COOKIE_OPTIONS);
+      this.setCookie(FRONTEND_COOKIE_NAME, fe_jwt, FRONTEND_COOKIE_OPTIONS);
 
       logger.info({
         event: "auth:login_password",
@@ -103,10 +104,10 @@ export class LoginPasswordController {
         msg: "User logged in successfully",
       });
 
-      response.redirect(success_url + "?login=successful");
+      // response.redirect(success_url + "?login=successful");
     } catch (error) {
       logger.error({ err: error }, "Error in login_password");
-      response.redirect(error_url + "?error=auth_failed");
+      // response.redirect(error_url + "?error=auth_failed");
     }
   }
 }

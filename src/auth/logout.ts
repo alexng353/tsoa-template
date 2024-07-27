@@ -13,6 +13,7 @@ import {
 type Extras = {
   reason?: string;
 } & Record<string, unknown>;
+/** @deprecated */
 export async function LogOut(
   response: ExpressResponse,
   session_id: string | null,
@@ -40,6 +41,24 @@ export async function LogOut(
         });
       });
   }
-  response.clearCookie(SESSION_COOKIE_NAME, SESSION_COOKIE_OPTIONS);
-  response.clearCookie(FRONTEND_COOKIE_NAME, FRONTEND_COOKIE_OPTIONS);
+  // response.clearCookie(SESSION_COOKIE_NAME, SESSION_COOKIE_OPTIONS);
+  // response.clearCookie(FRONTEND_COOKIE_NAME, FRONTEND_COOKIE_OPTIONS);
 }
+
+/*
+if (Array.isArray(cookies)) {
+  const new_cookies = cookies.filter(
+    (cookie) =>
+      !cookie.startsWith(SESSION_COOKIE_NAME) &&
+      !cookie.startsWith(FRONTEND_COOKIE_NAME),
+  );
+  this.setHeader("Set-Cookie", new_cookies);
+} else if (typeof cookies === "string") {
+  if (
+    cookies.startsWith(SESSION_COOKIE_NAME) ||
+    cookies.startsWith(FRONTEND_COOKIE_NAME)
+  ) {
+    this.setHeader("Set-Cookie");
+  }
+}
+*/

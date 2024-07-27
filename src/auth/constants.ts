@@ -13,38 +13,70 @@ function thirtyDaysFromNow() {
   return new Date(Date.now() + 30 * DAY);
 }
 
-export const SESSION_COOKIE_OPTIONS = IS_PRODUCTION
+export type CookieOptions = {
+  HttpOnly?: boolean;
+  Secure?: boolean;
+  SameSite?: "strict" | "lax" | "none";
+  Domain?: string;
+  Expires?: Date;
+  Path?: string;
+};
+
+export const SESSION_COOKIE_OPTIONS: CookieOptions = IS_PRODUCTION
   ? ({
-      httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-      domain: env.API_URL.hostname,
-      expires: thirtyDaysFromNow(),
-      path: "/",
+      HttpOnly: true,
+      Secure: true,
+      SameSite: "strict",
+      Domain: env.API_URL.hostname,
+      Expires: thirtyDaysFromNow(),
+      Path: "/",
     } as const)
   : ({
-      httpOnly: true,
-      secure: false,
-      sameSite: "lax",
-      domain: "localhost",
-      expires: thirtyDaysFromNow(),
-      path: "/",
+      HttpOnly: true,
+      Secure: false,
+      SameSite: "lax",
+      Domain: "localhost",
+      Expires: thirtyDaysFromNow(),
+      Path: "/",
     } as const);
 
-export const FRONTEND_COOKIE_OPTIONS = IS_PRODUCTION
+export const FRONTEND_COOKIE_OPTIONS: CookieOptions = IS_PRODUCTION
   ? ({
-      httpOnly: false,
-      secure: true,
-      sameSite: "strict",
-      domain: `.${env.FRONTEND_URL.host.split(".").slice(-2).join(".")}`,
-      expires: thirtyDaysFromNow(),
-      path: "/",
+      HttpOnly: false,
+      Secure: true,
+      SameSite: "strict",
+      Domain: `.${env.FRONTEND_URL.host.split(".").slice(-2).join(".")}`,
+      Expires: thirtyDaysFromNow(),
+      Path: "/",
     } as const)
   : ({
-      httpOnly: false,
-      secure: false,
-      sameSite: "lax",
-      domain: "localhost",
-      expires: thirtyDaysFromNow(),
-      path: "/",
+      HttpOnly: false,
+      Secure: false,
+      SameSite: "lax",
+      Domain: "localhost",
+      Expires: thirtyDaysFromNow(),
+      Path: "/",
     } as const);
+
+export const EXPRESS_FRONTEND_COOKIE_OPTIONS = {
+  httpOnly: false,
+  secure: IS_PRODUCTION,
+  sameSite: "strict",
+  domain: IS_PRODUCTION
+    ? `.${env.FRONTEND_URL.host.split(".").slice(-2).join(".")}`
+    : "localhost",
+  expires: thirtyDaysFromNow(),
+  path: "/",
+} as const;
+
+export function createCookieString(
+  name: string,
+  value: string,
+  options: Record<string, unknown>,
+) {
+  const optionsString = Object.entries(options)
+    .map(([key, value]) => `${key}=${value}`)
+    .join("; ");
+
+  return `${name}=${value}; ${optionsString}`;
+}

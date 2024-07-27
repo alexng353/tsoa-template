@@ -71,7 +71,49 @@
 			"SignupBody": {
 				"properties": {
 					"code": {
+						"type": "string",
+						"description": "The OTP code sent to the user's email",
+						"pattern": "^[0-9a-z]{8}$"
+					},
+					"email": {
 						"type": "string"
+					},
+					"password": {
+						"type": "string"
+					},
+					"username": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"code",
+					"email",
+					"password",
+					"username"
+				],
+				"type": "object"
+			},
+			"LoginBody": {
+				"properties": {
+					"password": {
+						"type": "string"
+					},
+					"username": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"password",
+					"username"
+				],
+				"type": "object"
+			},
+			"MobileSignupBody": {
+				"properties": {
+					"code": {
+						"type": "string",
+						"description": "The OTP code sent to the user's email",
+						"pattern": "^[0-9a-z]{8}$"
 					},
 					"email": {
 						"type": "string"
@@ -99,6 +141,18 @@
 		"contact": {}
 	},
 	"paths": {
+		"/test/redirect": {
+			"get": {
+				"operationId": "Goredirect",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"security": [],
+				"parameters": []
+			}
+		},
 		"/example/auth-test": {
 			"get": {
 				"operationId": "UserInfo",
@@ -208,6 +262,141 @@
 				"responses": {
 					"204": {
 						"description": "No content"
+					},
+					"302": {
+						"description": "Redirect to success_url or error_url"
+					}
+				},
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "error_url",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "success_url",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/SignupBody"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/auth/v1/logout": {
+			"post": {
+				"operationId": "Logout",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "error_url",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "success_url",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/auth/v1/login/password": {
+			"post": {
+				"operationId": "Login_password",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "error_url",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "success_url",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/LoginBody"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/auth/v1/mobile/signup/password": {
+			"post": {
+				"operationId": "Signup",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"type": "string"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					},
+					"302": {
+						"description": "Redirect to success_url or error_url"
 					}
 				},
 				"security": [],
@@ -217,7 +406,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/SignupBody"
+								"$ref": "#/components/schemas/MobileSignupBody"
 							}
 						}
 					}

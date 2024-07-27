@@ -1,11 +1,7 @@
-import { IncomingHttpHeaders } from "http";
-import { Body, Controller, Header, Post, Query, Res, Route } from "tsoa";
-import { Response } from "express";
+import { Body, Post, Queries, Response, Route } from "tsoa";
 import argon2 from "@node-rs/argon2";
 import * as jose from "jose";
 
-import { get_real_ip } from "../get-real-ip";
-import { LogOut } from "../logout";
 import { OTP } from "../otp";
 import { Users } from "@app/schema/user.schema";
 import { db, getFirst } from "@lib/db";
@@ -21,32 +17,36 @@ import {
 import { logger } from "@lib/logger";
 import { env } from "@lib/env";
 import { JWS_SECRET } from "../jwt-helpers";
-import { RedirectQuery, Z_RedirectQuery } from "../types";
+import { Z_RedirectQuery } from "../types";
+import { NController } from "@lib/ncontroller";
+import { OTPCode } from "@app/types";
 
 type SignupBody = {
   username: string;
   password: string;
   email: string;
-  code: string;
+  code: OTPCode;
 };
 
 @Route("/auth/v1/signup")
-export class AuthController extends Controller {
+export class AuthController extends NController {
   @Post("/password")
+  @Response<void>(302, "Redirect to success_url or error_url")
   public async signup(
     @Body() body: SignupBody,
-    @Res() response: Response,
-    @Header() headers: IncomingHttpHeaders,
-    @Query() _query: RedirectQuery,
+    @Queries()
+    _query: {
+      success_url?: string;
+      error_url?: string;
+    },
   ): Promise<void> {
     const { success_url, error_url } = Z_RedirectQuery.parse(_query);
 
-    const ip_address = get_real_ip(headers);
+    const ip_address = this.getRealIp();
     try {
-      // Log the user out to prevent bugs
-      await LogOut(response, null, {
-        reason: "User signing up for a new account",
-      });
+      // Logout any existing sessions
+      this.clearCookie(SESSION_COOKIE_NAME);
+      this.clearCookie(FRONTEND_COOKIE_NAME);
 
       await OTP.burnOTP(body.email, body.code).catch((error) => {
         throw new Error("Failed to verify email", {
@@ -98,22 +98,20 @@ export class AuthController extends Controller {
         throw new InternalServerError("Failed to create session");
       }
 
-      response.cookie(SESSION_COOKIE_NAME, session.id, SESSION_COOKIE_OPTIONS);
-      response.cookie(
-        FRONTEND_COOKIE_NAME,
-        await new jose.SignJWT()
-          .setProtectedHeader({ alg: "HS256" })
-          .setSubject(user.id)
+      const fe_jwt = await new jose.SignJWT()
+        .setProtectedHeader({ alg: "HS256" })
+        .setSubject(user.id)
 
-          .setIssuedAt(iat)
-          .setExpirationTime(exp)
+        .setIssuedAt(iat)
+        .setExpirationTime(exp)
 
-          .setIssuer(env.API_URL.toString())
-          .setAudience(env.FRONTEND_URL.toString())
-          .setJti(crypto.randomUUID())
-          .sign(JWS_SECRET),
-        FRONTEND_COOKIE_OPTIONS,
-      );
+        .setIssuer(env.API_URL.toString())
+        .setAudience(env.FRONTEND_URL.toString())
+        .setJti(crypto.randomUUID())
+        .sign(JWS_SECRET);
+
+      this.setCookie(SESSION_COOKIE_NAME, session.id, SESSION_COOKIE_OPTIONS);
+      this.setCookie(FRONTEND_COOKIE_NAME, fe_jwt, FRONTEND_COOKIE_OPTIONS);
 
       logger.info({
         event: "auth:signup_password",
@@ -122,10 +120,10 @@ export class AuthController extends Controller {
         msg: "User signed up successfully",
       });
 
-      response.redirect(success_url + "?signup=successful");
+      this.redirect(success_url.toString() + "?signup=successful");
     } catch (error) {
       logger.error({ err: error }, "Error in signup_password");
-      response.redirect(error_url + "?error=auth_failed");
+      this.redirect(error_url.toString() + "?error=auth_failed");
     }
     return;
   }

@@ -9,8 +9,12 @@ import cookieParser from "cookie-parser";
 import { IS_PRODUCTION } from "@lib/constants";
 import { errorMiddleware } from "./middleware/handle-error.middleware";
 import { auth } from "./auth/auth-middleware";
+import { limiter } from "./middleware/rate-limit.middleware";
+import { tracingMiddleware } from "./middleware/tracing.middleware";
 
 export const app = express();
+app.use(limiter(100));
+app.use(tracingMiddleware);
 
 app.use(cookieParser());
 app.use(
