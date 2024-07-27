@@ -1,0 +1,2 @@
+bun run ./watcher.ts --clear-screen
+bun tsc --noEmit

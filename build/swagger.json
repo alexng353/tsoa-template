@@ -68,12 +68,15 @@
 			"UserCreationParams": {
 				"$ref": "#/components/schemas/Pick_User.email-or-name-or-phoneNumbers_"
 			},
+			"OTPCode": {
+				"type": "string",
+				"description": "The OTP code sent to the user's email",
+				"pattern": "^[0-9a-z]{8}$"
+			},
 			"SignupBody": {
 				"properties": {
 					"code": {
-						"type": "string",
-						"description": "The OTP code sent to the user's email",
-						"pattern": "^[0-9a-z]{8}$"
+						"$ref": "#/components/schemas/OTPCode"
 					},
 					"email": {
 						"type": "string"
@@ -111,9 +114,7 @@
 			"MobileSignupBody": {
 				"properties": {
 					"code": {
-						"type": "string",
-						"description": "The OTP code sent to the user's email",
-						"pattern": "^[0-9a-z]{8}$"
+						"$ref": "#/components/schemas/OTPCode"
 					},
 					"email": {
 						"type": "string"

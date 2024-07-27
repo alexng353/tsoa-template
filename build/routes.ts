@@ -9,13 +9,13 @@ import { SecureController } from './../src/example/example_auth.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { ExampleController } from './../src/example/example.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { AuthController } from './../src/auth/routes/signup.controller';
+import { SignupController } from './../src/auth/routes/signup.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { LogOutController } from './../src/auth/routes/logout.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { LoginPasswordController } from './../src/auth/routes/login.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { MobileAuthController } from './../src/auth/mobile-routes/msignup.controller';
+import { MobileSignupController } from './../src/auth/mobile-routes/msignup.controller';
 import { expressAuthentication } from './../authentication';
 // @ts-ignore - no great way to install types from subpackage
 import type { Request as ExRequest, Response as ExResponse, RequestHandler, Router } from 'express';
@@ -48,9 +48,14 @@ const models: TsoaRoute.Models = {
         "type": {"ref":"Pick_User.email-or-name-or-phoneNumbers_","validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "OTPCode": {
+        "dataType": "refAlias",
+        "type": {"dataType":"string","validators":{"pattern":{"value":"^[0-9a-z]{8}$"}}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "SignupBody": {
         "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"code":{"dataType":"string","required":true,"validators":{"pattern":{"value":"^[0-9a-z]{8}$"}}},"email":{"dataType":"string","required":true},"password":{"dataType":"string","required":true},"username":{"dataType":"string","required":true}},"validators":{}},
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"code":{"ref":"OTPCode","required":true},"email":{"dataType":"string","required":true},"password":{"dataType":"string","required":true},"username":{"dataType":"string","required":true}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "LoginBody": {
@@ -60,7 +65,7 @@ const models: TsoaRoute.Models = {
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "MobileSignupBody": {
         "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"code":{"dataType":"string","required":true,"validators":{"pattern":{"value":"^[0-9a-z]{8}$"}}},"email":{"dataType":"string","required":true},"password":{"dataType":"string","required":true},"username":{"dataType":"string","required":true}},"validators":{}},
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"code":{"ref":"OTPCode","required":true},"email":{"dataType":"string","required":true},"password":{"dataType":"string","required":true},"username":{"dataType":"string","required":true}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 };
@@ -230,10 +235,10 @@ export function RegisterRoutes(app: Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/auth/v1/signup/password',
-            ...(fetchMiddlewares<RequestHandler>(AuthController)),
-            ...(fetchMiddlewares<RequestHandler>(AuthController.prototype.signup)),
+            ...(fetchMiddlewares<RequestHandler>(SignupController)),
+            ...(fetchMiddlewares<RequestHandler>(SignupController.prototype.signup)),
 
-            async function AuthController_signup(request: ExRequest, response: ExResponse, next: any) {
+            async function SignupController_signup(request: ExRequest, response: ExResponse, next: any) {
             const args: Record<string, TsoaRoute.ParameterSchema> = {
                     body: {"in":"body","name":"body","required":true,"ref":"SignupBody"},
                     _query: {"in":"queries","name":"_query","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"error_url":{"dataType":"string"},"success_url":{"dataType":"string"}}},
@@ -245,7 +250,7 @@ export function RegisterRoutes(app: Router) {
             try {
                 validatedArgs = templateService.getValidatedArgs({ args, request, response });
 
-                const controller = new AuthController();
+                const controller = new SignupController();
 
               await templateService.apiHandler({
                 methodName: 'signup',
@@ -323,10 +328,10 @@ export function RegisterRoutes(app: Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/auth/v1/mobile/signup/password',
-            ...(fetchMiddlewares<RequestHandler>(MobileAuthController)),
-            ...(fetchMiddlewares<RequestHandler>(MobileAuthController.prototype.signup)),
+            ...(fetchMiddlewares<RequestHandler>(MobileSignupController)),
+            ...(fetchMiddlewares<RequestHandler>(MobileSignupController.prototype.signup)),
 
-            async function MobileAuthController_signup(request: ExRequest, response: ExResponse, next: any) {
+            async function MobileSignupController_signup(request: ExRequest, response: ExResponse, next: any) {
             const args: Record<string, TsoaRoute.ParameterSchema> = {
                     body: {"in":"body","name":"body","required":true,"ref":"MobileSignupBody"},
             };
@@ -337,7 +342,7 @@ export function RegisterRoutes(app: Router) {
             try {
                 validatedArgs = templateService.getValidatedArgs({ args, request, response });
 
-                const controller = new MobileAuthController();
+                const controller = new MobileSignupController();
 
               await templateService.apiHandler({
                 methodName: 'signup',

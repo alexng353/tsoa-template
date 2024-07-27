@@ -6,12 +6,11 @@ import { conditions, defaultCondition } from "./conditions";
 
 const isHelp = process.argv.includes("--help") || process.argv.includes("-h");
 const helpMessage = `Usage: bun dev
-  --verbose, -v: Print verbose output (default false)
-                 Verbose output includes the event type, filename,
-                 and unique key used to determine if the server should be restarted.
-  --help, -h:    Print this help message
-
-
+  --verbose, -v:     Print verbose output (default false)
+                     Verbose output includes the event type, filename,
+                     and unique key used to determine if the server should be restarted.
+  --help, -h:        Print this help message
+  --clear-screen:    Clear the screen before printing output
 
 If this is your first time running this script, you need to modify the conditions.ts 
 file and add your unique key to the conditions object. The unique key is a string
@@ -44,6 +43,7 @@ if (isHelp) {
 
 const isVerbose =
   process.argv.includes("--verbose") || process.argv.includes("-v");
+const doClearScreen = process.argv.includes("--clear-screen");
 
 await reloadTsoa();
 
@@ -66,6 +66,8 @@ const watcher = watch(import.meta.dir, {
 });
 for await (const event of watcher) {
   if (generateCondition(event)) {
+    if (doClearScreen) console.clear();
+
     console.log("\nkilling previous process");
     if (currentProcess) {
       const isDead = currentProcess.killed;

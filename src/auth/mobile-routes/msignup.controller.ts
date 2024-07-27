@@ -1,4 +1,4 @@
-import { Body, Post, Queries, Response, Route } from "tsoa";
+import { Body, Post, Response, Route } from "tsoa";
 import argon2 from "@node-rs/argon2";
 import * as jose from "jose";
 
@@ -8,46 +8,26 @@ import { db, getFirst } from "@lib/db";
 import { InternalServerError } from "@lib/status/error";
 import { DAY } from "@lib/constants";
 import { Sessions } from "@app/schema/session.schema";
-import {
-  FRONTEND_COOKIE_NAME,
-  FRONTEND_COOKIE_OPTIONS,
-  SESSION_COOKIE_NAME,
-  SESSION_COOKIE_OPTIONS,
-} from "../constants";
 import { logger } from "@lib/logger";
 import { env } from "@lib/env";
 import { JWS_SECRET } from "../jwt-helpers";
-import { Z_RedirectQuery } from "../types";
 import { NController } from "@lib/ncontroller";
-import type { OTPCode } from "../../types";
+import { OTPCode } from "../../types";
 
-type SignupBody = {
+type MobileSignupBody = {
   username: string;
   password: string;
   email: string;
   code: OTPCode;
 };
 
-@Route("/auth/v1/signup")
-export class SignupController extends NController {
+@Route("/auth/v1/mobile/signup")
+export class MobileSignupController extends NController {
   @Post("/password")
   @Response<void>(302, "Redirect to success_url or error_url")
-  public async signup(
-    @Body() body: SignupBody,
-    @Queries()
-    _query: {
-      success_url?: string;
-      error_url?: string;
-    },
-  ): Promise<void> {
-    const { success_url, error_url } = Z_RedirectQuery.parse(_query);
-
+  public async signup(@Body() body: MobileSignupBody) {
     const ip_address = this.getRealIp();
     try {
-      // Logout any existing sessions
-      this.clearCookie(SESSION_COOKIE_NAME);
-      this.clearCookie(FRONTEND_COOKIE_NAME);
-
       await OTP.burnOTP(body.email, body.code).catch((error) => {
         throw new Error("Failed to verify email", {
           cause: error,
@@ -81,7 +61,8 @@ export class SignupController extends NController {
       }
 
       const iat = new Date();
-      const exp = new Date(iat.getTime() + 30 * DAY); // 30 days
+      // instead of doing this, we should do refresh tokens (lol)
+      const exp = new Date(iat.getTime() + 365 * DAY); // 1 year
 
       const session = await db
         .insert(Sessions)
@@ -98,7 +79,7 @@ export class SignupController extends NController {
         throw new InternalServerError("Failed to create session");
       }
 
-      const fe_jwt = await new jose.SignJWT()
+      const jwt = await new jose.SignJWT()
         .setProtectedHeader({ alg: "HS256" })
         .setSubject(user.id)
 
@@ -110,21 +91,17 @@ export class SignupController extends NController {
         .setJti(crypto.randomUUID())
         .sign(JWS_SECRET);
 
-      this.setCookie(SESSION_COOKIE_NAME, session.id, SESSION_COOKIE_OPTIONS);
-      this.setCookie(FRONTEND_COOKIE_NAME, fe_jwt, FRONTEND_COOKIE_OPTIONS);
-
       logger.info({
-        event: "auth:signup_password",
+        event: "auth:mobile:signup_password",
         user_id: user.id,
         ip_address,
         msg: "User signed up successfully",
       });
 
-      this.redirect(success_url.toString() + "?signup=successful");
+      return jwt;
     } catch (error) {
       logger.error({ err: error }, "Error in signup_password");
-      this.redirect(error_url.toString() + "?error=auth_failed");
+      return { error: "signup_failed" };
     }
-    return;
   }
 }

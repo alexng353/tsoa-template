@@ -10,4 +10,4 @@ export type UUID = string;
  * The OTP code sent to the user's email
  * @pattern ^[0-9a-z]{8}$
  */
-export type OTPCode = string;
+export declare type OTPCode = string;
